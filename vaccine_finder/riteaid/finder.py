@@ -113,9 +113,10 @@ class RiteAidAppointmentFinder(object):
             self.logger.info(f"Received response:\n{pformat(content)}")
 
             # Check availability - for vaccine dose 1/2
-            success = self.check_availability(content, store)
-            if success:
+            avail = self.check_availability(content, store)
+            if avail:
                 stores_with_appts.append(store)
+            success = success or avail
 
         # Notify people with stores that have appointments
         if stores_with_appts:
