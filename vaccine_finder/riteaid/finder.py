@@ -134,7 +134,6 @@ class RiteAidAppointmentFinder(object):
         for vaccine_dose in VACCINE_DOSE_IDS:
             if content["Data"]["slots"].get(vaccine_dose):
                 success = True
-                store["fullAddress"] = address
                 self.logger.info(
                     f"✅ Vaccine dose {vaccine_dose} available at RiteAid "
                     f"{store['storeNumber']} {store['fullAddress']}"
