@@ -4,7 +4,7 @@ from pprint import pprint, pformat
 import logging
 import requests
 
-from vaccine_finder.utils import setup_logger
+from vaccine_finder.utils import setup_logger, send_request
 from vaccine_finder.notify import Notifier
 
 CHECK_SLOTS_ENDPOINT = (
@@ -99,7 +99,8 @@ class RiteAidAppointmentFinder(object):
 
             # Send request
             try:
-                content = self.send_request(
+                content = send_request(
+                    self.session,
                     "get",
                     CHECK_SLOTS_ENDPOINT,
                     params={"storeNumber": store["storeNumber"]},
@@ -182,8 +183,8 @@ class RiteAidAppointmentFinder(object):
         }
         # Send request
         try:
-            content = self.send_request(
-                "get", GET_STORES_ENDPOINT, params=params
+            content = send_request(
+                self.session, "get", GET_STORES_ENDPOINT, params=params
             )
         except requests.exceptions.RequestException as err:
             self.logger.error(f"Error getting available stores: {err}")
@@ -193,23 +194,6 @@ class RiteAidAppointmentFinder(object):
             f"{radius} miles"
         )
         return stores
-
-    def send_request(self, method_name, url, **kwargs):
-        """
-        Send HTTP request to url
-        """
-        # Send request
-        http_method = getattr(self.session, method_name)
-        response = http_method(url, **kwargs)
-        response.raise_for_status()
-
-        # Parse response
-        try:
-            content = response.json()
-        except json.decoder.JSONDecodeError as e:
-            self.logger.error(f"Got unexpected response:\n{response.text}")
-
-        return content
 
 
 if __name__ == "__main__":
