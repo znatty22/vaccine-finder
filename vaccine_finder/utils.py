@@ -5,9 +5,7 @@ def setup_logger(log_level=logging.INFO):
     """
     Setup logger
     """
-    format_ = (
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    format_ = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     root = logging.getLogger()
     consoleHandler = logging.StreamHandler()
     consoleHandler.setFormatter(logging.Formatter(format_))
