@@ -10,7 +10,7 @@ from vaccine_finder.jobs import riteaid_job
 
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
-JOB_INTERVAL = int(os.environ.get('JOB_INTERVAL', 30))
+JOB_INTERVAL = int(os.environ.get('JOB_INTERVAL', 900))
 
 
 def schedule_jobs():
@@ -31,6 +31,7 @@ def schedule_jobs():
     queue.delete(delete_jobs=True)
 
     # RiteAid Job
+    print('Scheduling riteaid_finder job ...')
     scheduler.schedule(
         id='riteaid_finder',
         scheduled_time=datetime.now(),
@@ -56,6 +57,6 @@ def counter():
 
 
 if __name__ == '__main__':
-    print('Scheduling jobs ...')
+    print('Scheduling vaccine finder jobs ...')
     schedule_jobs()
     counter()

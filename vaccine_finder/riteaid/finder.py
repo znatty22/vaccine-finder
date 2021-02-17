@@ -28,6 +28,8 @@ class RiteAidAppointmentFinder(object):
         self.logger = setup_logger()
         self.debug = debug
 
+        self.logger.info("Initializing RiteAid Vaccine Finder ...")
+        self.logger.info(f'DEBUG: {self.debug}')
         # Create session with cookie
         self.session = requests.Session()
         if cookie:
@@ -80,6 +82,7 @@ class RiteAidAppointmentFinder(object):
         radius = radius or self.radius
 
         self.logger.info("Starting vaccine finder ...")
+        self.logger.info(f'NOTIFY: {notify}')
 
         # Get list of stores to query
         stores = self.get_stores(zip_code, radius)
