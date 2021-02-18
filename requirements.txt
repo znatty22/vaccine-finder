@@ -2,3 +2,4 @@ requests
 twilio
 rq
 rq-scheduler
+geopy
