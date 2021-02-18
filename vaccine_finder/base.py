@@ -86,7 +86,7 @@ class BaseAppointmentFinder(ABC):
         self.logger.info("Notifying users of open appointments ...")
         messages = [
             "--------------------",
-            f"🚑 {self.store_label} Stores with Open Appointments!!!",
+            f"🚑 {self.store_label} Stores Have Open Appointments!!!",
         ]
         custom_message = self._notification_message()
         messages.append(custom_message)

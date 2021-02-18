@@ -93,16 +93,16 @@ class WalgreensAppointmentFinder(BaseAppointmentFinder):
         if self.debug:
             return True
 
-        self.success = content['appointmentsAvailable']
+        success = content['appointmentsAvailable']
         if success:
             self.logger.info(
                 f"✅ Vaccine appointments available at "
-                "{self.store_label} within zip code {self.zip_code}"
+                f"{self.store_label} within zip code {self.zip_code}"
             )
         else:
             self.logger.info(
-                f"❌ Vaccine dose {vaccine_dose} not available at RiteAid "
-                f"{store['storeNumber']} {store['fullAddress']}"
+                f"❌ Vaccine appointments not available at "
+                f"{self.store_label} within zip code {self.zip_code}"
             )
         return success
 
