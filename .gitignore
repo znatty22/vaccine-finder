@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 # App files
-inputs.json
+*.json

@@ -7,10 +7,13 @@ from rq import Queue
 from rq_scheduler import Scheduler
 
 from vaccine_finder.jobs import riteaid_job
+from vaccine_finder.jobs import walgreens_job
 
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
 JOB_INTERVAL = int(os.environ.get('JOB_INTERVAL', 900))
+
+JOBS = [walgreens_job, riteaid_job]
 
 
 def schedule_jobs():
@@ -24,21 +27,21 @@ def schedule_jobs():
 
     # Cancel/delete jobs from queue and registries before scheduling
     print('Canceling any existing jobs ...')
-    for job_id in ['riteaid_finder']:
-        for job in scheduler.get_jobs():
-            print(f'Cancel job {job.id}')
-            job.cancel()
+    for job in scheduler.get_jobs():
+        print(f'Cancel job {job.id}')
+        job.cancel()
     queue.delete(delete_jobs=True)
 
     # RiteAid Job
-    print('Scheduling riteaid_finder job ...')
-    scheduler.schedule(
-        id='riteaid_finder',
-        scheduled_time=datetime.now(),
-        func=riteaid_job,
-        interval=JOB_INTERVAL,
-        repeat=None,
-    )
+    for job in JOBS:
+        print(f'Scheduling {job.__name__} job ...')
+        scheduler.schedule(
+            id=job.__name__,
+            scheduled_time=datetime.now(),
+            func=job,
+            interval=JOB_INTERVAL,
+            repeat=None,
+        )
 
 
 def counter():
