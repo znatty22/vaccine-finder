@@ -16,15 +16,12 @@ SCHEDULER_ENDPOINT = "https://www.riteaid.com/pharmacy/apt-scheduler"
 VACCINE_DOSE_IDS = ["1"]
 STORE_LABEL = "RiteAid"
 
-ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
-INPUT_FILE = os.path.abspath(os.path.join(ROOT_DIR, "inputs.json"))
-
 
 class RiteAidAppointmentFinder(BaseAppointmentFinder):
     def __init__(
         self,
         debug=False,
-        input_file=INPUT_FILE,
+        input_file=None,
         cookie_dict=None,
     ):
         super().__init__(
@@ -32,21 +29,19 @@ class RiteAidAppointmentFinder(BaseAppointmentFinder):
             debug=debug, input_file=input_file, cookie_dict=cookie_dict
         )
 
-    def _find(self, zip_code=None, radius=None):
+    def _find(self, zip_codes=None, radius=None):
         """
         Entrypoint for find script
 
         Find RiteAids where there are available covid vaccine appointments
         """
-        zip_code = zip_code or self.zip_code
-        radius = radius or self.radius
+        self.zip_codes = zip_codes or self.zip_codes
+        self.radius = radius or self.radius
 
         self.logger.info("Starting vaccine finder ...")
 
         # Get list of stores to query
-        stores = self._get_stores(zip_code, radius)
-        if self.debug:
-            stores = stores[0:2]
+        stores = self._get_stores(self.zip_codes, self.radius)
 
         self.stores_with_appts = []
         for store in stores:
@@ -83,7 +78,7 @@ class RiteAidAppointmentFinder(BaseAppointmentFinder):
 
     def _notification_message(self):
         """
-        Create notification message to notify users (text, email) 
+        Create notification message to notify users (text, email)
         that appointments are available in stores
         """
         return "\n\n".join(
@@ -115,32 +110,37 @@ class RiteAidAppointmentFinder(BaseAppointmentFinder):
                 )
         return success
 
-    def _get_stores(self, zip_code, radius):
+    def _get_stores(self, zip_codes, radius):
         """
         Get list of RiteAid stores in zip code within radius
         """
-        params = {
-            "address": zip_code,
-            "radius": radius,
-            # Only get stores offering vaccines
-            "attrFilter": "PREF-112",
-            "fetchMechanismVersion": 2,
-        }
-        # Send request
-        try:
-            content = send_request(
-                self.session, "get", GET_STORES_ENDPOINT, params=params
+        stores = {}
+        for zip_code in zip_codes:
+            params = {
+                "address": zip_code,
+                "radius": radius,
+                # Only get stores offering vaccines
+                "attrFilter": "PREF-112",
+                "fetchMechanismVersion": 2,
+            }
+            # Send request
+            try:
+                content = send_request(
+                    self.session, "get", GET_STORES_ENDPOINT, params=params
+                )
+            except requests.exceptions.RequestException as err:
+                self.logger.error(f"Error getting available stores: {err}")
+
+            stores.update(
+                {s["address"]: s for s in content["Data"]["stores"]}
             )
-        except requests.exceptions.RequestException as err:
-            self.logger.error(f"Error getting available stores: {err}")
-        stores = content["Data"]["stores"]
-        self.logger.info(
-            f"Found {len(stores)} stores in zip code {zip_code} within radius "
-            f"{radius} miles"
-        )
-        return stores
+            self.logger.info(
+                f"Found {len(stores)} stores in zip code {zip_code} within "
+                f"radius {radius} miles"
+            )
+        return stores.values()
 
 
 if __name__ == "__main__":
-    f = RiteAidAppointmentFinder(debug=False)
+    f = RiteAidAppointmentFinder(debug=True)
     success = f.find(notify=False)

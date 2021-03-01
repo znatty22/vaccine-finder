@@ -17,9 +17,6 @@ SCHEDULER_ENDPOINT = (
     "https://www.wegmans.com/covid-vaccine-registration/"
 )
 STORE_LABEL = "Wegmans"
-
-ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
-INPUT_FILE = os.path.abspath(os.path.join(ROOT_DIR, "inputs.json"))
 TOTAL_PAGE_ELEMENTS = 306
 
 
@@ -27,7 +24,7 @@ class WegmansAppointmentFinder(BaseAppointmentFinder):
     def __init__(
         self,
         debug=False,
-        input_file=INPUT_FILE,
+        input_file=None,
         cookie_dict=None,
     ):
         super().__init__(
@@ -35,14 +32,13 @@ class WegmansAppointmentFinder(BaseAppointmentFinder):
             debug=debug, input_file=input_file, cookie_dict=cookie_dict
         )
 
-    def _find(self, zip_code=None, radius=None):
+    def _find(self, zip_codes=None, radius=None):
         """
         Entrypoint for find script
 
         Find Wegmans where there are available covid vaccine appointments
         """
-        zip_code = zip_code or self.zip_code
-        self.zip_code = zip_code
+        self.zip_codes = zip_codes or self.zip_codes
 
         self.logger.info("Starting vaccine finder ...")
 
@@ -52,7 +48,8 @@ class WegmansAppointmentFinder(BaseAppointmentFinder):
                 self.session,
                 "get",
                 AVAIL_ENDPOINT,
-                headers={"User-Agent": "Vaccine-Finder"}
+                headers={"User-Agent": "Vaccine-Finder"},
+                return_text=True
             )
         except requests.exceptions.RequestException as err:
             self.logger.error(
@@ -98,5 +95,5 @@ class WegmansAppointmentFinder(BaseAppointmentFinder):
 
 
 if __name__ == "__main__":
-    f = WegmansAppointmentFinder(debug=False)
+    f = WegmansAppointmentFinder(debug=True)
     success = f.find(notify=False)
