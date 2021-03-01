@@ -1,29 +1,29 @@
 import os
-import datetime
 import json
 from pprint import pprint, pformat
 import logging
 
 import requests
-from geopy.geocoders import Nominatim
+from bs4 import BeautifulSoup
 
 from vaccine_finder.utils import setup_logger, send_request
 from vaccine_finder.notify import Notifier
 from vaccine_finder.base import BaseAppointmentFinder
 
 AVAIL_ENDPOINT = (
-    "https://www.walgreens.com/hcschedulersvc/svc/v1/immunizationLocations/availability"
+    "https://www.wegmans.com/covid-vaccine-registration/"
 )
 SCHEDULER_ENDPOINT = (
-    "https://www.walgreens.com/findcare/vaccination/covid-19/location-screening"
+    "https://www.wegmans.com/covid-vaccine-registration/"
 )
-STORE_LABEL = "Walgreens"
+STORE_LABEL = "Wegmans"
 
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
 INPUT_FILE = os.path.abspath(os.path.join(ROOT_DIR, "inputs.json"))
+TOTAL_PAGE_ELEMENTS = 306
 
 
-class WalgreensAppointmentFinder(BaseAppointmentFinder):
+class WegmansAppointmentFinder(BaseAppointmentFinder):
     def __init__(
         self,
         debug=False,
@@ -34,13 +34,12 @@ class WalgreensAppointmentFinder(BaseAppointmentFinder):
             STORE_LABEL, SCHEDULER_ENDPOINT,
             debug=debug, input_file=input_file, cookie_dict=cookie_dict
         )
-        self.geolocator = Nominatim(user_agent=type(self).__name__)
 
     def _find(self, zip_code=None, radius=None):
         """
         Entrypoint for find script
 
-        Find Walgreens where there are available covid vaccine appointments
+        Find Wegmans where there are available covid vaccine appointments
         """
         zip_code = zip_code or self.zip_code
         self.zip_code = zip_code
@@ -48,23 +47,12 @@ class WalgreensAppointmentFinder(BaseAppointmentFinder):
         self.logger.info("Starting vaccine finder ...")
 
         # Send request
-        d = datetime.datetime.now().date().isoformat()
-        loc = self.geolocator.geocode(str(zip_code))
-        body = {
-            "serviceId": "99",
-            "position": {
-                "latitude": loc.latitude,
-                "longitude": loc.longitude
-            },
-            "appointmentAvailability": {"startDateTime": d},
-            "radius": 25  # server complains if greater than 25
-        }
         try:
             content = send_request(
                 self.session,
-                "post",
+                "get",
                 AVAIL_ENDPOINT,
-                json=body,
+                headers={"User-Agent": "Vaccine-Finder"}
             )
         except requests.exceptions.RequestException as err:
             self.logger.error(
@@ -81,10 +69,10 @@ class WalgreensAppointmentFinder(BaseAppointmentFinder):
 
     def _notification_message(self):
         """
-        Create notification message to notify users (text, email) 
+        Create notification message to notify users (text, email)
         that appointments are available in stores
         """
-        return f"Stores in zip code {self.zip_code}"
+        return "There MIGHT be appointments! Wegmans webpage finally changed!"
 
     def _check_availability(self, content):
         """
@@ -93,20 +81,22 @@ class WalgreensAppointmentFinder(BaseAppointmentFinder):
         if self.debug:
             return True
 
-        success = content['appointmentsAvailable']
+        soup = BeautifulSoup(content, 'html.parser')
+        success = len([t for t in soup.findAll()]) != TOTAL_PAGE_ELEMENTS
+
         if success:
             self.logger.info(
                 f"✅ Vaccine appointments available at "
-                f"{self.store_label} within zip code {self.zip_code}"
+                f"{self.store_label}"
             )
         else:
             self.logger.info(
                 f"❌ Vaccine appointments not available at "
-                f"{self.store_label} within zip code {self.zip_code}"
+                f"{self.store_label}"
             )
         return success
 
 
 if __name__ == "__main__":
-    f = WalgreensAppointmentFinder(debug=True)
-    success = f.find(notify=True)
+    f = WegmansAppointmentFinder(debug=False)
+    success = f.find(notify=False)

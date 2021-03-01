@@ -3,3 +3,4 @@ twilio
 rq
 rq-scheduler
 geopy
+beautifulsoup4

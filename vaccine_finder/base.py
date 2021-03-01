@@ -20,7 +20,7 @@ class BaseAppointmentFinder(ABC):
         scheduler_endpoint,
         debug=False,
         input_file=INPUT_FILE,
-        cookie=None,
+        cookie_dict=None,
     ):
         setup_logger()
         self.logger = logging.getLogger(type(self).__name__)
@@ -29,12 +29,14 @@ class BaseAppointmentFinder(ABC):
         self.debug = debug
 
         self.logger.info("Initializing {type(self).__name__} ...")
-        self.logger.info(f'DEBUG: {self.debug}')
+        self.logger.info(f"DEBUG: {self.debug}")
 
         # Create session with cookie
         self.session = requests.Session()
-        if cookie:
-            self.session.cookies = requests.cookies.cookiejar_from_dict(cookie)
+        if cookie_dict:
+            self.session.cookies = (
+                requests.cookies.cookiejar_from_dict(cookie_dict)
+            )
 
         # Read inputs - zip_code, radius, subscribers to notify
         self.zip_code = 19403

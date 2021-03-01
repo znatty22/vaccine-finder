@@ -12,11 +12,19 @@ def send_request(session, method_name, url, **kwargs):
     # Send request
     http_method = getattr(session, method_name)
     response = http_method(url, **kwargs)
-    response.raise_for_status()
+
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        logger.error(f"Bad status code. Caused by:\n{response.text}")
+        raise
 
     # Parse response
     try:
-        content = response.json()
+        if 'json' in kwargs:
+            content = response.json()
+        else:
+            content = response.text
     except json.decoder.JSONDecodeError as e:
         logger.error(f"Got unexpected response:\n{response.text}")
 

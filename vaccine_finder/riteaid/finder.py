@@ -25,11 +25,11 @@ class RiteAidAppointmentFinder(BaseAppointmentFinder):
         self,
         debug=False,
         input_file=INPUT_FILE,
-        cookie=None,
+        cookie_dict=None,
     ):
         super().__init__(
             STORE_LABEL, SCHEDULER_ENDPOINT,
-            debug=debug, input_file=input_file, cookie=cookie
+            debug=debug, input_file=input_file, cookie_dict=cookie_dict
         )
 
     def _find(self, zip_code=None, radius=None):
