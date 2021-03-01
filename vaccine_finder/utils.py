@@ -10,6 +10,7 @@ def send_request(session, method_name, url, **kwargs):
     Send HTTP request to url
     """
     # Send request
+    return_text = kwargs.pop('return_text', False)
     http_method = getattr(session, method_name)
     response = http_method(url, **kwargs)
 
@@ -20,11 +21,10 @@ def send_request(session, method_name, url, **kwargs):
         raise
 
     # Parse response
+    if return_text:
+        return response.text
     try:
-        if 'json' in kwargs:
-            content = response.json()
-        else:
-            content = response.text
+        content = response.json()
     except json.decoder.JSONDecodeError as e:
         logger.error(f"Got unexpected response:\n{response.text}")
 

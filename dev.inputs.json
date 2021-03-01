@@ -3,7 +3,7 @@
         "+15557777": "email@gmail.com"
     },
     "location": {
-        "zip_code": 19403,
+        "zip_codes": [19403],
         "radius": 50
     }
 }
