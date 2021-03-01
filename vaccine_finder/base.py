@@ -11,6 +11,8 @@ from vaccine_finder.notify import Notifier
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
 INPUT_FILE = os.path.abspath(os.path.join(ROOT_DIR, "inputs.json"))
 DEFAULT_PHONE_NUM = "+14846206937"
+DEFAULT_ZIP_CODES = [19403]
+DEFAULT_RADIUS = 50
 
 
 class BaseAppointmentFinder(ABC):
@@ -19,7 +21,7 @@ class BaseAppointmentFinder(ABC):
         store_label,
         scheduler_endpoint,
         debug=False,
-        input_file=INPUT_FILE,
+        input_file=None,
         cookie_dict=None,
     ):
         setup_logger()
@@ -39,13 +41,19 @@ class BaseAppointmentFinder(ABC):
             )
 
         # Read inputs - zip_code, radius, subscribers to notify
-        self.zip_code = 19403
-        self.radius = 50
-        self.subscribers = []
-        if os.path.exists(input_file):
-            with open(input_file) as json_file:
+        fn = os.environ.get("INPUT_FILE")
+        if (not input_file) and fn:
+            self.input_file = os.path.abspath(os.path.join(ROOT_DIR, fn))
+        else:
+            self.input_file = INPUT_FILE
+
+        self.zip_codes = DEFAULT_ZIP_CODES
+        self.radius = DEFAULT_RADIUS
+        self.subscribers = dict()
+        if os.path.exists(self.input_file):
+            with open(self.input_file) as json_file:
                 inputs = json.load(json_file)
-                self.zip_code = inputs["location"]["zip_code"]
+                self.zip_codes = inputs["location"]["zip_codes"]
                 self.radius = inputs["location"]["radius"]
                 self.subscribers = inputs["subscribers"]
                 if self.debug:
