@@ -4,6 +4,7 @@ import datetime
 
 from vaccine_finder.riteaid.finder import RiteAidAppointmentFinder
 from vaccine_finder.walgreens.finder import WalgreensAppointmentFinder
+from vaccine_finder.wegmans.finder import WegmansAppointmentFinder
 
 WINDOW_START = datetime.time(6, 0, 0, 0)  # 6 am
 WINDOW_END = datetime.time(23, 59, 0, 0)  # ~ 12 am
@@ -37,13 +38,20 @@ def _finder_job(finder):
         )
 
 
+def wegmans_job():
+    """
+    Wegmans Vaccine Finder Job during time window
+    """
+    f = WegmansAppointmentFinder(debug=DEBUG_VACCINE_FINDER)
+    _finder_job(f)
+
+
 def walgreens_job():
     """
     Walgreens Vaccine Finder Job during time window
     """
     f = WalgreensAppointmentFinder(debug=DEBUG_VACCINE_FINDER)
     _finder_job(f)
-#     f.find(notify=NOTIFY_VACCINE_USERS)
 
 
 def riteaid_job():
