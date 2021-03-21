@@ -6,14 +6,12 @@ from redis import Redis
 from rq import Queue
 from rq_scheduler import Scheduler
 
+from vaccine_finder.config import (
+    JOB_INTERVAL, REDIS_HOST, REDIS_PORT,
+)
 from vaccine_finder.jobs import allentown_job
 from vaccine_finder.jobs import riteaid_job
 from vaccine_finder.jobs import wegmans_job
-
-
-REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
-REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
-JOB_INTERVAL = int(os.environ.get('JOB_INTERVAL', 900))
 
 JOBS = [allentown_job, riteaid_job, wegmans_job]
 

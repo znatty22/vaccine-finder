@@ -6,6 +6,7 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 
+from vaccine_finder.config import DEFAULT_INPUT_FILE
 from vaccine_finder.utils import setup_logger, send_request
 from vaccine_finder.notify import Notifier
 from vaccine_finder.base import BaseAppointmentFinder
@@ -17,14 +18,14 @@ SCHEDULER_ENDPOINT = (
     "https://www.wegmans.com/covid-vaccine-registration/"
 )
 STORE_LABEL = "Wegmans"
-TOTAL_PAGE_ELEMENTS = 306
+TOTAL_PAGE_ELEMENTS = 317
 
 
 class WegmansAppointmentFinder(BaseAppointmentFinder):
     def __init__(
         self,
         debug=False,
-        input_file=None,
+        input_file=DEFAULT_INPUT_FILE,
         cookie_dict=None,
     ):
         super().__init__(
@@ -49,7 +50,6 @@ class WegmansAppointmentFinder(BaseAppointmentFinder):
                 "get",
                 AVAIL_ENDPOINT,
                 headers={"User-Agent": "Vaccine-Finder"},
-                return_text=True
             )
         except requests.exceptions.RequestException as err:
             self.logger.error(
@@ -79,7 +79,8 @@ class WegmansAppointmentFinder(BaseAppointmentFinder):
             return True
 
         soup = BeautifulSoup(content, 'html.parser')
-        success = len([t for t in soup.findAll()]) != TOTAL_PAGE_ELEMENTS
+        page_elements = len([t for t in soup.findAll()])
+        success = page_elements != TOTAL_PAGE_ELEMENTS
 
         if success:
             self.logger.info(

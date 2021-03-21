@@ -2,16 +2,18 @@ import os
 import logging
 import datetime
 
-from vaccine_finder.config import DEFAULT_INPUT_FILE
+from vaccine_finder.config import (
+    DEFAULT_INPUT_FILE,
+    WINDOW_START,
+    WINDOW_END,
+    NOTIFY_VACCINE_USERS,
+    DEBUG_VACCINE_FINDER,
+)
 from vaccine_finder.riteaid.finder import RiteAidAppointmentFinder
 from vaccine_finder.walgreens.finder import WalgreensAppointmentFinder
 from vaccine_finder.wegmans.finder import WegmansAppointmentFinder
 from vaccine_finder.allentown.finder import AllentownAppointmentFinder
 
-WINDOW_START = datetime.time(6, 0, 0, 0)  # 6 am
-WINDOW_END = datetime.time(23, 59, 0, 0)  # ~ 12 am
-NOTIFY_VACCINE_USERS = bool(int(os.environ.get("NOTIFY_VACCINE_USERS", False)))
-DEBUG_VACCINE_FINDER = bool(int(os.environ.get("DEBUG_VACCINE_FINDER", False)))
 
 logger = logging.getLogger('Jobs')
 
