@@ -5,14 +5,14 @@ from pprint import pprint, pformat
 import logging
 import requests
 
+from vaccine_finder.config import (
+    DEFAULT_INPUT_FILE,
+    DEFAULT_PHONE_NUM,
+    DEFAULT_ZIP_CODES,
+    DEFAULT_RADIUS,
+)
 from vaccine_finder.utils import setup_logger, send_request
 from vaccine_finder.notify import Notifier
-
-ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
-INPUT_FILE = os.path.abspath(os.path.join(ROOT_DIR, "inputs.json"))
-DEFAULT_PHONE_NUM = "+14846206937"
-DEFAULT_ZIP_CODES = [19403]
-DEFAULT_RADIUS = 50
 
 
 class BaseAppointmentFinder(ABC):
@@ -21,7 +21,7 @@ class BaseAppointmentFinder(ABC):
         store_label,
         scheduler_endpoint,
         debug=False,
-        input_file=None,
+        input_file=DEFAULT_INPUT_FILE,
         cookie_dict=None,
     ):
         setup_logger()
@@ -29,9 +29,11 @@ class BaseAppointmentFinder(ABC):
         self.store_label = store_label
         self.scheduler_endpoint = scheduler_endpoint
         self.debug = debug
+        self.input_file = input_file
 
         self.logger.info("Initializing {type(self).__name__} ...")
         self.logger.info(f"DEBUG: {self.debug}")
+        self.logger.info(f"INPUTS: {self.input_file}")
 
         # Create session with cookie
         self.session = requests.Session()
@@ -41,12 +43,6 @@ class BaseAppointmentFinder(ABC):
             )
 
         # Read inputs - zip_code, radius, subscribers to notify
-        fn = os.environ.get("INPUT_FILE")
-        if (not input_file) and fn:
-            self.input_file = os.path.abspath(os.path.join(ROOT_DIR, fn))
-        else:
-            self.input_file = INPUT_FILE
-
         self.zip_codes = DEFAULT_ZIP_CODES
         self.radius = DEFAULT_RADIUS
         self.subscribers = dict()

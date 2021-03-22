@@ -7,6 +7,7 @@ import logging
 import requests
 from geopy.geocoders import Nominatim
 
+from vaccine_finder.config import DEFAULT_INPUT_FILE
 from vaccine_finder.utils import setup_logger, send_request
 from vaccine_finder.notify import Notifier
 from vaccine_finder.base import BaseAppointmentFinder
@@ -24,7 +25,7 @@ class WalgreensAppointmentFinder(BaseAppointmentFinder):
     def __init__(
         self,
         debug=False,
-        input_file=None,
+        input_file=DEFAULT_INPUT_FILE,
         cookie_dict=None,
     ):
         super().__init__(

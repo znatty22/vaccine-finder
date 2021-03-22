@@ -3,6 +3,12 @@ import logging
 from pprint import pprint, pformat
 
 from twilio.rest import Client
+from vaccine_finder.config import (
+    TWILIO_ACCOUNT_ID,
+    TWILIO_AUTH_TOKEN,
+    TWILIO_PHONE_NUMBER,
+
+)
 from vaccine_finder.utils import setup_logger
 
 
@@ -11,9 +17,9 @@ class Notifier(object):
         if init_logger:
             setup_logger()
         self.logger = logging.getLogger(type(self).__name__)
-        account_sid = os.environ["TWILIO_ACCOUNT_ID"]
-        auth_token = os.environ["TWILIO_AUTH_TOKEN"]
-        self.twilio_number = os.environ["TWILIO_PHONE_NUMBER"]
+        account_sid = TWILIO_ACCOUNT_ID
+        auth_token = TWILIO_AUTH_TOKEN
+        self.twilio_number = TWILIO_PHONE_NUMBER
         self.client = Client(account_sid, auth_token)
 
     def send_texts(self, message, phone_numbers):

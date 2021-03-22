@@ -2,6 +2,7 @@ import json
 import logging
 import requests
 
+from vaccine_finder.config import VACCINE_FINDER_LOG_LEVEL
 logger = logging.getLogger(__name__)
 
 
@@ -9,8 +10,6 @@ def send_request(session, method_name, url, **kwargs):
     """
     Send HTTP request to url
     """
-    # Send request
-    return_text = kwargs.pop('return_text', False)
     http_method = getattr(session, method_name)
     response = http_method(url, **kwargs)
 
@@ -20,18 +19,16 @@ def send_request(session, method_name, url, **kwargs):
         logger.error(f"Bad status code. Caused by:\n{response.text}")
         raise
 
-    # Parse response
-    if return_text:
-        return response.text
     try:
         content = response.json()
     except json.decoder.JSONDecodeError as e:
-        logger.error(f"Got unexpected response:\n{response.text}")
+        logger.warning(f"Could not parse response as json")
+        content = response.text
 
     return content
 
 
-def setup_logger(log_level=logging.INFO):
+def setup_logger(log_level=VACCINE_FINDER_LOG_LEVEL):
     """
     Setup logger
     """

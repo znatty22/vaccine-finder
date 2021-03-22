@@ -12,16 +12,13 @@ from vaccine_finder.notify import Notifier
 from vaccine_finder.base import BaseAppointmentFinder
 
 AVAIL_ENDPOINT = (
-    "https://www.wegmans.com/covid-vaccine-registration/"
+    "https://allentownpaclinics.schedulemeappointments.com/?mode=startreg&b2ZmZXJpbmdpZD00MjYx"
 )
-SCHEDULER_ENDPOINT = (
-    "https://www.wegmans.com/covid-vaccine-registration/"
-)
-STORE_LABEL = "Wegmans"
-TOTAL_PAGE_ELEMENTS = 317
+SCHEDULER_ENDPOINT = AVAIL_ENDPOINT
+STORE_LABEL = "Allentown Health Clinic"
 
 
-class WegmansAppointmentFinder(BaseAppointmentFinder):
+class AllentownAppointmentFinder(BaseAppointmentFinder):
     def __init__(
         self,
         debug=False,
@@ -37,7 +34,7 @@ class WegmansAppointmentFinder(BaseAppointmentFinder):
         """
         Entrypoint for find script
 
-        Find Wegmans where there are available covid vaccine appointments
+        Find Allentown where there are available covid vaccine appointments
         """
         self.zip_codes = zip_codes or self.zip_codes
 
@@ -49,7 +46,7 @@ class WegmansAppointmentFinder(BaseAppointmentFinder):
                 self.session,
                 "get",
                 AVAIL_ENDPOINT,
-                headers={"User-Agent": "Vaccine-Finder"},
+                headers={"User-Agent": "Vaccine-Finder"}
             )
         except requests.exceptions.RequestException as err:
             self.logger.error(
@@ -69,7 +66,7 @@ class WegmansAppointmentFinder(BaseAppointmentFinder):
         Create notification message to notify users (text, email)
         that appointments are available in stores
         """
-        return "There MIGHT be appointments! Wegmans webpage finally changed!"
+        return f"{STORE_LABEL} web page changed!!!"
 
     def _check_availability(self, content):
         """
@@ -78,9 +75,7 @@ class WegmansAppointmentFinder(BaseAppointmentFinder):
         if self.debug:
             return True
 
-        soup = BeautifulSoup(content, 'html.parser')
-        page_elements = len([t for t in soup.findAll()])
-        success = page_elements != TOTAL_PAGE_ELEMENTS
+        success = "There are no openings available" not in content
 
         if success:
             self.logger.info(
@@ -96,5 +91,5 @@ class WegmansAppointmentFinder(BaseAppointmentFinder):
 
 
 if __name__ == "__main__":
-    f = WegmansAppointmentFinder(debug=True)
-    success = f.find(notify=False)
+    f = AllentownAppointmentFinder(debug=True)
+    success = f.find(notify=True)

@@ -2,14 +2,18 @@ import os
 import logging
 import datetime
 
+from vaccine_finder.config import (
+    DEFAULT_INPUT_FILE,
+    WINDOW_START,
+    WINDOW_END,
+    NOTIFY_VACCINE_USERS,
+    DEBUG_VACCINE_FINDER,
+)
 from vaccine_finder.riteaid.finder import RiteAidAppointmentFinder
 from vaccine_finder.walgreens.finder import WalgreensAppointmentFinder
 from vaccine_finder.wegmans.finder import WegmansAppointmentFinder
+from vaccine_finder.allentown.finder import AllentownAppointmentFinder
 
-WINDOW_START = datetime.time(6, 0, 0, 0)  # 6 am
-WINDOW_END = datetime.time(23, 59, 0, 0)  # ~ 12 am
-NOTIFY_VACCINE_USERS = bool(int(os.environ.get("NOTIFY_VACCINE_USERS", False)))
-DEBUG_VACCINE_FINDER = bool(int(os.environ.get("DEBUG_VACCINE_FINDER", False)))
 
 logger = logging.getLogger('Jobs')
 
@@ -38,11 +42,25 @@ def _finder_job(finder):
         )
 
 
+def allentown_job():
+    """
+    Allentown Health Clinic Vaccine Finder Job during time window
+    """
+    f = AllentownAppointmentFinder(
+        input_file=DEFAULT_INPUT_FILE,
+        debug=DEBUG_VACCINE_FINDER
+    )
+    _finder_job(f)
+
+
 def wegmans_job():
     """
     Wegmans Vaccine Finder Job during time window
     """
-    f = WegmansAppointmentFinder(debug=DEBUG_VACCINE_FINDER)
+    f = WegmansAppointmentFinder(
+        input_file=DEFAULT_INPUT_FILE,
+        debug=DEBUG_VACCINE_FINDER
+    )
     _finder_job(f)
 
 
@@ -50,7 +68,10 @@ def walgreens_job():
     """
     Walgreens Vaccine Finder Job during time window
     """
-    f = WalgreensAppointmentFinder(debug=DEBUG_VACCINE_FINDER)
+    f = WalgreensAppointmentFinder(
+        input_file=DEFAULT_INPUT_FILE,
+        debug=DEBUG_VACCINE_FINDER
+    )
     _finder_job(f)
 
 
@@ -58,6 +79,8 @@ def riteaid_job():
     """
     Riteaid Vaccine Finder Job during time window
     """
-    f = RiteAidAppointmentFinder(debug=DEBUG_VACCINE_FINDER)
+    f = RiteAidAppointmentFinder(
+        input_file=DEFAULT_INPUT_FILE,
+        debug=DEBUG_VACCINE_FINDER
+    )
     _finder_job(f)
-#     f.find(notify=NOTIFY_VACCINE_USERS)
