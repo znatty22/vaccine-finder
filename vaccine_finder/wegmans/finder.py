@@ -57,7 +57,7 @@ class WegmansAppointmentFinder(BaseAppointmentFinder):
             )
             raise
 
-        self.logger.info(f"Received response:\n{pformat(content)}")
+        self.logger.debug(f"Received response:\n{pformat(content)}")
 
         # Check availability
         avail = self._check_availability(content)

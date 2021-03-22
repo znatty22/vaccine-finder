@@ -33,6 +33,7 @@ class BaseAppointmentFinder(ABC):
 
         self.logger.info("Initializing {type(self).__name__} ...")
         self.logger.info(f"DEBUG: {self.debug}")
+        self.logger.info(f"INPUTS: {self.input_file}")
 
         # Create session with cookie
         self.session = requests.Session()
