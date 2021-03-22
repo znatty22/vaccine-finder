@@ -108,9 +108,7 @@ env/
 venv/
 ENV/
 env.bak/
-venv.bak/
-
-# Spyder project settings
+venv.bak/ # Spyder project settings
 .spyderproject
 .spyproject
 
@@ -128,5 +126,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# App files
-*.json
+# Ignore hidden files
+.*
+!/.gitignore
