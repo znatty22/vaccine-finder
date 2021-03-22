@@ -9,8 +9,6 @@ def send_request(session, method_name, url, **kwargs):
     """
     Send HTTP request to url
     """
-    # Send request
-    return_text = kwargs.pop('return_text', False)
     http_method = getattr(session, method_name)
     response = http_method(url, **kwargs)
 
@@ -20,13 +18,11 @@ def send_request(session, method_name, url, **kwargs):
         logger.error(f"Bad status code. Caused by:\n{response.text}")
         raise
 
-    # Parse response
-    if return_text:
-        return response.text
     try:
         content = response.json()
     except json.decoder.JSONDecodeError as e:
-        logger.error(f"Got unexpected response:\n{response.text}")
+        logger.warning(f"Could not parse response as json")
+        content = response.text
 
     return content
 
