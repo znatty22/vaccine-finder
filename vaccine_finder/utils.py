@@ -2,6 +2,7 @@ import json
 import logging
 import requests
 
+from vaccine_finder.config import VACCINE_FINDER_LOG_LEVEL
 logger = logging.getLogger(__name__)
 
 
@@ -27,7 +28,7 @@ def send_request(session, method_name, url, **kwargs):
     return content
 
 
-def setup_logger(log_level=logging.INFO):
+def setup_logger(log_level=VACCINE_FINDER_LOG_LEVEL):
     """
     Setup logger
     """

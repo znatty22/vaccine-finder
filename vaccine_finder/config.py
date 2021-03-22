@@ -1,5 +1,13 @@
 import datetime
+import logging
 import os
+
+# Logger
+VACCINE_FINDER_LOG_LEVEL = os.environ.get(
+    "VACCINE_FINDER_LOG_LEVEL", ""
+).upper()
+if not VACCINE_FINDER_LOG_LEVEL:
+    VACCINE_FINDER_LOG_LEVEL = logging.INFO
 
 # Data
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
