@@ -31,7 +31,7 @@ class BaseAppointmentFinder(ABC):
         self.debug = debug
         self.input_file = input_file
 
-        self.logger.info("Initializing {type(self).__name__} ...")
+        self.logger.info(f"Initializing {type(self).__name__} ...")
         self.logger.info(f"DEBUG: {self.debug}")
         self.logger.info(f"INPUTS: {self.input_file}")
 
@@ -58,6 +58,10 @@ class BaseAppointmentFinder(ABC):
                             DEFAULT_PHONE_NUM
                         )
                     }
+        else:
+            self.logger.warning(
+                f"⚠️  Input file {self.input_file} not found"
+            )
 
         self.notifier = Notifier()
 
