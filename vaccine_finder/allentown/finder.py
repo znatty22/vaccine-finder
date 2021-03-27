@@ -16,6 +16,7 @@ AVAIL_ENDPOINT = (
 )
 SCHEDULER_ENDPOINT = AVAIL_ENDPOINT
 STORE_LABEL = "Allentown Health Clinic"
+TOTAL_PAGE_ELEMENTS = 161
 
 
 class AllentownAppointmentFinder(BaseAppointmentFinder):
@@ -75,7 +76,9 @@ class AllentownAppointmentFinder(BaseAppointmentFinder):
         if self.debug:
             return True
 
-        success = "There are no openings available" not in content
+        soup = BeautifulSoup(content, 'html.parser')
+        page_elements = len([t for t in soup.findAll()])
+        success = page_elements > TOTAL_PAGE_ELEMENTS
 
         if success:
             self.logger.info(
@@ -91,5 +94,5 @@ class AllentownAppointmentFinder(BaseAppointmentFinder):
 
 
 if __name__ == "__main__":
-    f = AllentownAppointmentFinder(debug=True)
-    success = f.find(notify=True)
+    f = AllentownAppointmentFinder(debug=False)
+    success = f.find(notify=False)
