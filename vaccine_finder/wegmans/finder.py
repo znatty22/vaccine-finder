@@ -80,7 +80,7 @@ class WegmansAppointmentFinder(BaseAppointmentFinder):
 
         soup = BeautifulSoup(content, 'html.parser')
         page_elements = len([t for t in soup.findAll()])
-        success = page_elements != TOTAL_PAGE_ELEMENTS
+        success = page_elements > TOTAL_PAGE_ELEMENTS
 
         if success:
             self.logger.info(
